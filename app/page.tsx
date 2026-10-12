@@ -1,68 +1,104 @@
 import Image from "next/image";
+import FunctionCard from "@/components/FunctionCard";
+import Sidebar from "@/components/Sidebar";
+
+const cards = [
+  {
+    source: "/svg/computer.svg",
+    title: "Computer Basics",
+    description: "Learn fundamentals and key concepts",
+    alt: "Computer",
+  },
+  {
+    source: "/svg/code.svg",
+    title: "Programming",
+    description: "Get help with coding and logic",
+    alt: "Programming",
+  },
+  {
+    source: "/svg/web.svg",
+    title: "Web Development",
+    description: "HTML, CSS, JavaScript, and more",
+    alt: "Web development",
+  },
+  {
+    source: "/svg/database.svg",
+    title: "Data and Databases",
+    description: "Understand databases, SQL, and more",
+    alt: "Database",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-1">
+      <Sidebar />
+
+      <main className="min-w-0 flex-1 mx-auto w-full max-w-6xl">
+        {/* Welcome Section */}
+        <section className=" px-6 pb-5 pt-4 md:px-10 md:pt-5">
+          <p className="mb-1 text-sm text-slate-500">
+            Welcome back,
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          <h1 className="page-title mb-1.5">
+            Harry
+          </h1>
+
+          <p className="text-base leading-relaxed text-slate-600 text-sm">
+            Ask anything about Computer Studies.
+            <br />
+            I&apos;m here to help you learn and solve problems.
+          </p>
+        </section>
+
+        {/* Chat Input */}
+        <section className="px-6 md:px-10">
+          <form
+            action="/chat"
+            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-shadow focus-within:shadow-md"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+            <input
+              className="min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:outline-none"
+              type="text"
+              name="message"
+              placeholder="Ask a question about Computer Studies..."
+              aria-label="Your question"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+            <button
+              className="btn btn-primary h-11 w-11 shrink-0 rounded-lg p-0"
+              type="submit"
+              aria-label="Send message"
+            >
+              <Image
+                className="invert brightness-200"
+                src="/svg/send.svg"
+                alt=""
+                width={22}
+                height={22}
+              />
+            </button>
+          </form>
+        </section>
+
+        {/* Computer Studies Topics */}
+        <section className="px-6 pb-16 pt-7 md:px-10">
+          <div className="mb-5">
+            <h4 className=" mb-2">
+              Topics Chatty Helps With
+            </h4>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {cards.map((item) => (
+              <FunctionCard
+                key={item.title}
+                {...item}
+              />
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
