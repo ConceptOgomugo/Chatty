@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
+import Sidebar from "@/components/Sidebar";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+      <body className=" flex h-full flex-col overflow-hidden">
         <header className="w-full border-b border-border bg-slate-950">
           <nav className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2">
@@ -31,8 +32,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <Image
                   src="/logo.png"
                   alt="CS Chatty logo"
-                  width="60"
-                  height="60"
+                  width={60}
+                  height={60}
                   className="invert brightness-200"
                 />
               </Link>
@@ -60,7 +61,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </ul>
           </nav>
         </header>
-        {children}
+
+        <div className="flex min-h-0 flex-1">
+          <Sidebar />
+
+          <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+        </div>
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import FunctionCard from "@/components/FunctionCard";
-import Sidebar from "@/components/Sidebar";
 
 const cards = [
   {
@@ -32,9 +31,7 @@ const cards = [
 export default function Home() {
   return (
     <div className="flex flex-1">
-      <Sidebar />
-
-      <main className="min-w-0 flex-1 mx-auto w-full max-w-6xl">
+      <main className="min-w-0 mx-auto w-full max-w-6xl">
         {/* Welcome Section */}
         <section className=" px-6 pb-5 pt-4 md:px-10 md:pt-5">
           <p className="mb-1 text-sm text-slate-500">
