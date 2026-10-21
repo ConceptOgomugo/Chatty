@@ -1,5 +1,6 @@
 import Image from "next/image";
 import FunctionCard from "@/components/FunctionCard";
+import { createChat } from "./actions/chat";
 
 const cards = [
   {
@@ -52,7 +53,7 @@ export default function Home() {
         {/* Chat Input */}
         <section className="px-6 md:px-10">
           <form
-            action="/chat"
+            action={createChat}
             className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-shadow focus-within:shadow-md"
           >
             <input
@@ -65,6 +66,7 @@ export default function Home() {
 
             <button
               className="btn btn-primary h-11 w-11 shrink-0 rounded-lg p-0"
+              
               type="submit"
               aria-label="Send message"
             >

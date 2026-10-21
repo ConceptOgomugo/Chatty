@@ -1,35 +1,38 @@
 import Message from "@/components/Messages";
+import Image from "next/image";
+import { getDatabase } from "@/lib/mongodb";
 
-export default function ChatPage() {
-  const messages = [
-    {
-      id: "1",
-      role: "user" as const,
-      content: "Can you explain how to solve a quadratic equation?",
-      timestamp: "10:24 AM",
-    },
-    {
-      id: "2",
-      role: "assistant" as const,
-      content:
-        "Sure! A quadratic equation is a second-degree equation in the form ax² + bx + c = 0. You can solve it using the quadratic formula:\n\nx = (-b ± √(b² - 4ac)) / 2a\n\nWould you like me to show you an example with real numbers?",
-      timestamp: "10:24 AM",
-    },
-  ];
+type ChatPageProps = {
+  params: Promise<{ chatId: string }>;
+};
+
+export default async function ChatPage({ params }: ChatPageProps) {
+  const { chatId } = await params;
+
+  // Fetch the conversation and its messages from MongoDB
+  const db = await getDatabase();
+  const conversation = await db.collection("conversations").findOne({ chatId });
+
+  // Extract messages from the database record, or default to an empty array
+  const messages = conversation?.messages || [];
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Conversation header */}
       <header className="flex h-16 shrink-0 items-center border-b border-border px-6">
-        <h1 className="text-base font-semibold">New Chat</h1>
+        <h1 className="text-base font-semibold">
+          Chatty
+        </h1>
       </header>
 
       {/* Messages area */}
       <section className="flex-1 space-y-6 overflow-y-auto p-6">
-        {messages.map((message) => (
+        {messages.map((msg: any) => (
           <Message
-            key={message.id}
-            {... message}
+            key={msg.id}
+            role={msg.role}
+            content={msg.content}
+            timestamp={msg.timestamp}
           />
         ))}
       </section>
@@ -56,8 +59,7 @@ export default function ChatPage() {
                 aria-label="Attach an image"
                 className="rounded-md p-2 text-slate-600"
               >
-                {/* Image attachment icon will go here */}
-                <span aria-hidden="true">▧</span>
+                <Image src="/svg/image.svg" alt="File" width={17} height={17}/>
               </button>
 
               <button
@@ -65,8 +67,7 @@ export default function ChatPage() {
                 aria-label="Attach a file"
                 className="rounded-md p-2 text-slate-600"
               >
-                {/* File attachment icon will go here */}
-                <span aria-hidden="true">📎</span>
+                <Image src="/svg/file.svg" alt="File" width={17} height={17}/>
               </button>
             </div>
 
