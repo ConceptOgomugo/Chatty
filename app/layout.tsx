@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { connection } from "next/server"; // <-- 1. Import connection
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +24,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await connection(); // <-- 2. Opts the layout into dynamic request-time rendering
+
   const db = await getDatabase();
   const rawChats = await db
     .collection("conversations")

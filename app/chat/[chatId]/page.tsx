@@ -1,6 +1,7 @@
 import Message from "@/components/Messages";
 import Image from "next/image";
 import { getDatabase } from "@/lib/mongodb";
+import { createChat } from "@/app/actions/chat"; // 1. Import your server action
 
 type ChatPageProps = {
   params: Promise<{ chatId: string }>;
@@ -39,7 +40,9 @@ export default async function ChatPage({ params }: ChatPageProps) {
 
       {/* Message input */}
       <div className="shrink-0 border-t border-border bg-white p-2">
-        <form className="mx-auto max-w-3xl">
+        <form action={createChat} className="mx-auto max-w-3xl">
+          <input type="hidden" name="chatId" value={chatId} />
+
           <label htmlFor="message" className="sr-only">
             Type your message
           </label>
