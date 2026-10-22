@@ -83,7 +83,7 @@ export default function Sidebar({recentChats}: {recentChats: any[]}) {
             {recentChats.map((chat) => (
               <li key={chat.chatId}>
                 <Link
-                  href={`/chat/${chat.id}`}
+                  href={`/chat/${chat.chatId}`}
                   title={chat.title}
                   className="block truncate rounded-lg px-3 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-100"
                 >
