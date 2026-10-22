@@ -4,6 +4,7 @@ import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
+import { getDatabase } from "@/lib/mongodb";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -21,10 +22,27 @@ export const metadata: Metadata = {
     "Explore computer studies, understand technical concepts, and get answers to your computer studies questions.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const db = await getDatabase();
+  const rawChats = await db
+    .collection("conversations")
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  // Convert MongoDB ObjectId to plain string for the Client Component
+  const recentChats = rawChats.map((chat) => ({
+    ...chat,
+    _id: chat._id.toString(),
+  }));
+
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
-      <body className=" flex h-full flex-col overflow-hidden">
+    <html 
+      lang="en" 
+      className={`${poppins.variable} h-full antialiased`} 
+      suppressHydrationWarning
+    >
+      <body className="flex h-full flex-col overflow-hidden">
         <header className="w-full border-b border-border bg-slate-950">
           <nav className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2">
@@ -63,7 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
 
         <div className="flex min-h-0 flex-1">
-          <Sidebar />
+          <Sidebar recentChats={recentChats} />
 
           <main className="flex min-w-0 flex-1 flex-col">{children}</main>
         </div>

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createChat } from "@/app/actions/chat";
 
-export default function Sidebar() {
+export default function Sidebar({recentChats}: {recentChats: any[]}) {
+
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   useEffect(() => {
@@ -22,13 +23,6 @@ export default function Sidebar() {
       mediaQuery.removeEventListener("change", handleScreenChange);
     };
   }, []);
-
-  const recentChats = [
-    { id: "1", title: "Computer Basics" },
-    { id: "2", title: "JavaScript Fundamentals" },
-    { id: "3", title: "Database Management" },
-    { id: "4", title: "HTML and CSS" },
-  ];
 
   return (
     <aside
@@ -87,7 +81,7 @@ export default function Sidebar() {
 
           <ul className="space-y-1">
             {recentChats.map((chat) => (
-              <li key={chat.id}>
+              <li key={chat.chatId}>
                 <Link
                   href={`/chat/${chat.id}`}
                   title={chat.title}
