@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createChat } from "@/app/actions/chat";
 
-export default function Sidebar({recentChats}: {recentChats: any[]}) {
-
+export default function Sidebar({ recentChats }: { recentChats: any[] }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   useEffect(() => {
@@ -57,20 +55,17 @@ export default function Sidebar({recentChats}: {recentChats: any[]}) {
       </button>
 
       {/* New Chat */}
-      <form action={createChat}>
-        <button
-          type="submit"
-          title={isCollapsed ? "New Chat" : undefined}
-          aria-label="New Chat"
-          className={`flex h-11 w-full shrink-0 items-center gap-3 overflow-hidden rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-slate-700 ${
-            isCollapsed ? "justify-center px-0" : "px-3"
-          }`}
-        >
-          <span className="shrink-0 text-xl leading-none">+</span>
-
-          {!isCollapsed && <span className="whitespace-nowrap">New Chat</span>}
-        </button>
-      </form>
+      <Link
+        href="/"
+        title={isCollapsed ? "New Chat" : undefined}
+        aria-label="New Chat"
+        className={`flex h-11 w-full shrink-0 items-center gap-3 overflow-hidden rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-slate-700 ${
+          isCollapsed ? "justify-center px-0" : "px-3"
+        }`}
+      >
+        <span className="shrink-0 text-xl leading-none">+</span>
+        {!isCollapsed && <span className="whitespace-nowrap">New Chat</span>}
+      </Link>
 
       {/* Recent Chats */}
       {!isCollapsed && (
