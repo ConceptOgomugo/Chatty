@@ -1,3 +1,5 @@
+export const instant = false;
+
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { connection } from "next/server"; // <-- 1. Import connection
