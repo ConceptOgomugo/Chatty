@@ -1,6 +1,8 @@
 import Image from "next/image";
 import FunctionCard from "@/components/FunctionCard";
-import { createChat } from "./actions/chat";
+import { createChat } from "@/app/actions/chat";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const cards = [
   {
@@ -29,19 +31,23 @@ const cards = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+const cookieStore = await cookies();
+  const session = cookieStore.get("chatty_session");
+
+  // 2. If no session exists, redirect them straight to the login page
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <div className="flex flex-1">
       <main className="min-w-0 mx-auto w-full max-w-6xl">
         {/* Welcome Section */}
         <section className=" px-6 pb-5 pt-4 md:px-10 md:pt-5">
-          <p className="mb-1 text-sm text-slate-500">
-            Welcome back,
-          </p>
+          <p className="mb-1 text-sm text-slate-500">Welcome back,</p>
 
-          <h1 className="page-title mb-1.5">
-            Harry
-          </h1>
+          <h1 className="page-title mb-1.5">Harry</h1>
 
           <p className="text-base leading-relaxed text-slate-600 text-sm">
             Ask anything about Computer Studies.
@@ -66,7 +72,6 @@ export default function Home() {
 
             <button
               className="btn btn-primary h-11 w-11 shrink-0 rounded-lg p-0"
-              
               type="submit"
               aria-label="Send message"
             >
@@ -84,17 +89,12 @@ export default function Home() {
         {/* Computer Studies Topics */}
         <section className="px-6 pb-16 pt-7 md:px-10">
           <div className="mb-5">
-            <h4 className=" mb-2">
-              Topics Chatty Helps With
-            </h4>
+            <h4 className=" mb-2">Topics Chatty Helps With</h4>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {cards.map((item) => (
-              <FunctionCard
-                key={item.title}
-                {...item}
-              />
+              <FunctionCard key={item.title} {...item} />
             ))}
           </div>
         </section>

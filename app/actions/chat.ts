@@ -66,6 +66,9 @@ export async function createChat(formData: FormData) {
       createdAt: now,
       messages: [userMsgObj, placeholderAiMsg],
     });
+
+    // Refresh the root layout so the sidebar updates instantly with the new chat
+    revalidatePath("/", "layout");
   } else {
     const existingChat = await db.collection("conversations").findOne({ chatId: existingChatId });
     const updatePayload: any = {
@@ -88,7 +91,7 @@ export async function createChat(formData: FormData) {
     revalidatePath(`/chat/${existingChatId}`);
   }
 
-  // 2. RUN GEMINI IN BACKGROUND WITH A 12-SECOND TIMEOUT PROTECTION
+  // 2. RUN GEMINI IN BACKGROUND WITH TIMEOUT PROTECTION
   const activeChatId = targetChatId;
   after(async () => {
     try {
@@ -98,13 +101,12 @@ export async function createChat(formData: FormData) {
 
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       
-      // Wrap the AI call in a 12-second timeout so it never hangs forever
       const aiResponse = await fetchWithTimeout(
         ai.models.generateContent({
           model: "gemini-3.8-flash",
           contents: messageContent,
         }),
-        120000 // 12 seconds max
+        120000 // 2 minutes max
       );
 
       const aiResponseText = (aiResponse as any)?.text || "I couldn't generate a response.";
@@ -120,7 +122,7 @@ export async function createChat(formData: FormData) {
       console.error("Background AI Generation Error or Timeout:", error);
       
       const errorMsg = error.message === "AI request timed out"
-        ? "The AI server took too long to respond (timeout). Google's free-tier servers might be overloaded right now. Please try sending your message again."
+        ? "The AI server took too long to respond (timeout). Google's servers might be overloaded right now. Please try sending your message again."
         : "The AI service is currently busy or experiencing high demand. Please try again in a moment.";
 
       const bgDb = await getDatabase();
