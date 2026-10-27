@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 export async function signUp(formData: FormData) {
   const email = formData.get("email")?.toString().trim().toLowerCase();
   const password = formData.get("password")?.toString().trim();
+  const username = formData.get("username")?.toString().trim().toUpperCase();
 
   if (!email || !password) {
     throw new Error("Email & Password Required");
@@ -29,6 +30,7 @@ export async function signUp(formData: FormData) {
 
   await userCollection.insertOne({
     userId,
+    username,
     email,
     password: hashedPassword,
     createdAt: new Date(),

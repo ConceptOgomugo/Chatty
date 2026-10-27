@@ -5,7 +5,6 @@ export default function Signup() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
-        
         {/* Header Branding */}
         <div className="text-center space-y-2">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white font-bold text-xl shadow-md">
@@ -19,39 +18,54 @@ export default function Signup() {
           </p>
         </div>
 
-        {/* Login Form */}
         <form action={signUp} className="mt-8 space-y-5">
           <div className="space-y-4">
             <div>
-              <label 
-                htmlFor="email" 
+              <label
+                htmlFor="username"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                type="username"
+                name="username"
+                required
+                placeholder="What should we all you?"
+                className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="email"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1"
               >
                 Email Address
               </label>
-              <input 
+              <input
                 id="email"
-                type="email" 
-                name="email" 
+                type="email"
+                name="email"
                 required
                 placeholder="name@example.com"
-                className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:text-white" 
+                className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:text-white"
               />
             </div>
 
             <div>
-              <label 
-                htmlFor="password" 
+              <label
+                htmlFor="password"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1"
               >
                 Password
               </label>
-              <input 
+              <input
                 id="password"
-                type="password" 
-                name="password" 
+                type="password"
+                name="password"
                 required
-                placeholder="••••••••" 
+                placeholder="••••••••"
                 className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:text-white"
               />
             </div>
@@ -65,17 +79,15 @@ export default function Signup() {
           </button>
         </form>
 
-        {/* Footer Link to Sign Up */}
         <p className="text-center text-sm text-slate-500 dark:text-slate-400">
           Already have an account?{" "}
-          <Link 
-            href="/login" 
+          <Link
+            href="/login"
             className="font-medium text-slate-500 hover:underline"
           >
             Log In
           </Link>
         </p>
-
       </div>
     </main>
   );
