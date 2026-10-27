@@ -3,24 +3,6 @@
 import { redirect } from "next/navigation";
 import { getDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
-import { GoogleGenAI } from "@google/genai";
-import { after } from "next/server";
-
-// Helper function to force a timeout if Gemini hangs
-async function fetchWithTimeout(promise: Promise<any>, ms: number) {
-  let timeoutId: NodeJS.Timeout;
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error("AI request timed out")), ms);
-  });
-  try {
-    const result = await Promise.race([promise, timeoutPromise]);
-    clearTimeout(timeoutId!);
-    return result;
-  } catch (error) {
-    clearTimeout(timeoutId!);
-    throw error;
-  }
-}
 
 export async function createChat(formData: FormData) {
   const messageContent = formData.get("message")?.toString().trim();
@@ -30,7 +12,7 @@ export async function createChat(formData: FormData) {
 
   const db = await getDatabase();
   const now = new Date();
-  
+
   const timestamp = now.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -43,43 +25,99 @@ export async function createChat(formData: FormData) {
     timestamp,
   };
 
-  const placeholderAiId = crypto.randomUUID();
-  const placeholderAiMsg = {
-    id: placeholderAiId,
-    role: "assistant" as const,
-    content: "Thinking...",
-    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-  };
-
   const targetChatId = existingChatId || crypto.randomUUID();
   const isNewChat = !existingChatId;
 
-  // 1. SAVE USER MESSAGE + "THINKING..." PLACEHOLDER INSTANTLY
+  // 1. FETCH AI REPLY SYNCHRONOUSLY USING GROQ (Model untouched)
+  let aiResponseText = "I couldn't generate a response.";
+  try {
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY is missing in environment variables.");
+    }
+
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-20b",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are CS Chatty, a helpful and direct Computer Studies tutor for students.",
+            },
+            {
+              role: "user",
+              content: messageContent,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `Groq API error: ${data.error?.message || response.statusText}`
+      );
+    }
+
+    aiResponseText =
+      data.choices?.[0]?.message?.content ||
+      "I couldn't generate a response.";
+  } catch (error: any) {
+    console.error("Groq Generation Error:", error);
+    aiResponseText = `Error: ${error.message || "Failed to generate AI response."}`;
+  }
+
+  const aiMsgObj = {
+    id: crypto.randomUUID(),
+    role: "assistant" as const,
+    content: aiResponseText,
+    timestamp: new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+
+  // 2. SAVE BOTH MESSAGES TO MONGODB AT ONCE
   if (isNewChat) {
-    const title = messageContent.length > 30 
-      ? messageContent.slice(0, 30) + "..." 
-      : messageContent;
+    const title =
+      messageContent.length > 30
+        ? messageContent.slice(0, 30) + "..."
+        : messageContent;
 
     await db.collection("conversations").insertOne({
       chatId: targetChatId,
       title,
       createdAt: now,
-      messages: [userMsgObj, placeholderAiMsg],
+      messages: [userMsgObj, aiMsgObj],
     });
 
-    // Refresh the root layout so the sidebar updates instantly with the new chat
     revalidatePath("/", "layout");
   } else {
-    const existingChat = await db.collection("conversations").findOne({ chatId: existingChatId });
+    const existingChat = await db
+      .collection("conversations")
+      .findOne({ chatId: existingChatId });
+
     const updatePayload: any = {
-      $push: { messages: { $each: [userMsgObj, placeholderAiMsg] } },
+      $push: { messages: { $each: [userMsgObj, aiMsgObj] } },
     };
 
     if (existingChat && existingChat.title === "New Chat") {
       updatePayload.$set = {
-        title: messageContent.length > 30 
-          ? messageContent.slice(0, 30) + "..." 
-          : messageContent,
+        title:
+          messageContent.length > 30
+            ? messageContent.slice(0, 30) + "..."
+            : messageContent,
       };
     }
 
@@ -91,51 +129,7 @@ export async function createChat(formData: FormData) {
     revalidatePath(`/chat/${existingChatId}`);
   }
 
-  // 2. RUN GEMINI IN BACKGROUND WITH TIMEOUT PROTECTION
-  const activeChatId = targetChatId;
-  after(async () => {
-    try {
-      if (!process.env.GEMINI_API_KEY) {
-        throw new Error("API key is missing.");
-      }
-
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      
-      const aiResponse = await fetchWithTimeout(
-        ai.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: messageContent,
-        }),
-        120000 // 2 minutes max
-      );
-
-      const aiResponseText = (aiResponse as any)?.text || "I couldn't generate a response.";
-
-      const bgDb = await getDatabase();
-      await bgDb.collection("conversations").updateOne(
-        { chatId: activeChatId, "messages.id": placeholderAiId },
-        { $set: { "messages.$.content": aiResponseText } } as any
-      );
-
-      revalidatePath(`/chat/${activeChatId}`);
-    } catch (error: any) {
-      console.error("Background AI Generation Error or Timeout:", error);
-      
-      const errorMsg = error.message === "AI request timed out"
-        ? "The AI server took too long to respond (timeout). Google's servers might be overloaded right now. Please try sending your message again."
-        : "The AI service is currently busy or experiencing high demand. Please try again in a moment.";
-
-      const bgDb = await getDatabase();
-      await bgDb.collection("conversations").updateOne(
-        { chatId: activeChatId, "messages.id": placeholderAiId },
-        { $set: { "messages.$.content": errorMsg } } as any
-      );
-
-      revalidatePath(`/chat/${activeChatId}`);
-    }
-  });
-
-  // 3. REDIRECT IMMEDIATELY TO THE CHAT PAGE
+  // 3. REDIRECT TO THE CHAT PAGE WITH THE REPLY ALREADY THERE
   if (isNewChat) {
     redirect(`/chat/${targetChatId}`);
   }
