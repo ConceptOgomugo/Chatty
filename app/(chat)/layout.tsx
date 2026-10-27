@@ -53,7 +53,6 @@ export default async function RootLayout({
     >
       <header>
         <nav className="flex h-16 items-center justify-between border-b border-slate-800 bg-gray-900 px-6 text-white shadow-md">
-          {/* Logo & Brand */}
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
               <Image
@@ -67,7 +66,6 @@ export default async function RootLayout({
             </Link>
           </div>
 
-          {/* Navigation Links & Settings */}
           <div className="flex items-center gap-6 text-sm font-medium">
             <Link
               href="/"
@@ -76,7 +74,7 @@ export default async function RootLayout({
               Home
             </Link>
             <Link
-              href="/contact"
+              href="/settings"
               className="flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
               aria-label="Settings"
             >
