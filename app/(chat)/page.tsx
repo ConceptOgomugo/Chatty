@@ -3,6 +3,7 @@ import FunctionCard from "@/components/FunctionCard";
 import { createChat } from "@/app/actions/chat";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getDatabase } from "@/lib/mongodb";
 
 const cards = [
   {
@@ -33,7 +34,18 @@ const cards = [
 
 export default async function Home() {
 const cookieStore = await cookies();
+const userId = cookieStore.get("chatty_session")?.value;
   const session = cookieStore.get("chatty_session");
+
+  let username = "User";
+
+  if (userId) {
+    const db = await getDatabase();
+    const user = await db.collection("users").findOne({userId});
+    if (user?.username) {
+      username = user.username
+    }
+  }
 
   // 2. If no session exists, redirect them straight to the login page
   if (!session) {
@@ -47,9 +59,9 @@ const cookieStore = await cookies();
         <section className=" px-6 pb-5 pt-4 md:px-10 md:pt-5">
           <p className="mb-1 text-sm text-slate-500">Welcome back,</p>
 
-          <h1 className="page-title mb-1.5">Harry</h1>
+          <h1 className="page-title mb-1.5">{username}</h1>
 
-          <p className="text-base leading-relaxed text-slate-600 text-sm">
+          <p className=" leading-relaxed text-slate-600 text-sm">
             Ask anything about Computer Studies.
             <br />
             I&apos;m here to help you learn and solve problems.

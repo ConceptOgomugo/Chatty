@@ -2,7 +2,8 @@ export const instant = false;
 
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { connection } from "next/server"; // <-- 1. Import connection
+import { connection } from "next/server";
+import { cookies } from "next/headers";
 import "@/app/globals.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,16 +31,20 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await connection(); // <-- 2. Opts the layout into dynamic request-time rendering
+  await connection();
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("chatty_session")?.value;
 
   const db = await getDatabase();
-  const rawChats = await db
-    .collection("conversations")
-    .find({})
-    .sort({ createdAt: -1 })
-    .toArray();
+  const rawChats = userId
+    ? await db
+        .collection("conversations")
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .toArray()
+    : [];
 
-  // Convert MongoDB ObjectId to plain string for the Client Component
   const recentChats = rawChats.map((chat) => ({
     ...chat,
     _id: chat._id.toString(),

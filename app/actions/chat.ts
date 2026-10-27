@@ -3,12 +3,20 @@
 import { redirect } from "next/navigation";
 import { getDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function createChat(formData: FormData) {
   const messageContent = formData.get("message")?.toString().trim();
   const existingChatId = formData.get("chatId")?.toString();
 
   if (!messageContent) return;
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("chatty_session")?.value;
+
+  if (!userId) {
+    redirect("/login");
+  }
 
   const db = await getDatabase();
   const now = new Date();
@@ -25,10 +33,6 @@ export async function createChat(formData: FormData) {
     timestamp,
   };
 
-  const targetChatId = existingChatId || crypto.randomUUID();
-  const isNewChat = !existingChatId;
-
-  // 1. FETCH AI REPLY SYNCHRONOUSLY USING GROQ (Model untouched)
   let aiResponseText = "I couldn't generate a response.";
   try {
     if (!process.env.GROQ_API_KEY) {
@@ -88,7 +92,9 @@ export async function createChat(formData: FormData) {
     }),
   };
 
-  // 2. SAVE BOTH MESSAGES TO MONGODB AT ONCE
+  const targetChatId = existingChatId || crypto.randomUUID();
+  const isNewChat = !existingChatId;
+
   if (isNewChat) {
     const title =
       messageContent.length > 30
@@ -97,6 +103,7 @@ export async function createChat(formData: FormData) {
 
     await db.collection("conversations").insertOne({
       chatId: targetChatId,
+      userId,
       title,
       createdAt: now,
       messages: [userMsgObj, aiMsgObj],
@@ -106,13 +113,15 @@ export async function createChat(formData: FormData) {
   } else {
     const existingChat = await db
       .collection("conversations")
-      .findOne({ chatId: existingChatId });
+      .findOne({ chatId: existingChatId, userId });
+
+    if (!existingChat) return;
 
     const updatePayload: any = {
       $push: { messages: { $each: [userMsgObj, aiMsgObj] } },
     };
 
-    if (existingChat && existingChat.title === "New Chat") {
+    if (existingChat.title === "New Chat") {
       updatePayload.$set = {
         title:
           messageContent.length > 30
@@ -122,14 +131,13 @@ export async function createChat(formData: FormData) {
     }
 
     await db.collection("conversations").updateOne(
-      { chatId: existingChatId },
+      { chatId: existingChatId, userId },
       updatePayload
     );
 
     revalidatePath(`/chat/${existingChatId}`);
   }
 
-  // 3. REDIRECT TO THE CHAT PAGE WITH THE REPLY ALREADY THERE
   if (isNewChat) {
     redirect(`/chat/${targetChatId}`);
   }
