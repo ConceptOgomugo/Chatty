@@ -4,6 +4,7 @@ import { createChat } from "@/app/actions/chat";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDatabase } from "@/lib/mongodb";
+import { connection } from "next/server";
 
 const cards = [
   {
@@ -33,17 +34,18 @@ const cards = [
 ];
 
 export default async function Home() {
-const cookieStore = await cookies();
-const userId = cookieStore.get("chatty_session")?.value;
+  await connection();
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("chatty_session")?.value;
   const session = cookieStore.get("chatty_session");
 
   let username = "User";
 
   if (userId) {
     const db = await getDatabase();
-    const user = await db.collection("users").findOne({userId});
+    const user = await db.collection("users").findOne({ userId });
     if (user?.username) {
-      username = user.username
+      username = user.username;
     }
   }
 
