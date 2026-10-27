@@ -3,6 +3,8 @@ import ChatInput from "@/components/ChatInput"; // <-- Import the new component
 import { getDatabase } from "@/lib/mongodb";
 import { connection } from "next/server";
 
+export const instant = false;
+
 type ChatPageProps = {
   params: Promise<{ chatId: string }>;
 };
