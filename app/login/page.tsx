@@ -1,12 +1,16 @@
+'use client';
+
 import Link from "next/link";
 import { login } from "@/app/actions/auth";
+import { useActionState } from "react";
 
 export default function LoginPage() {
+  const [state, formAction, isPending] = useActionState(login, null);
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
         
-        {/* Header Branding */}
         <div className="text-center space-y-2">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white font-bold text-xl shadow-md">
             💬
@@ -19,8 +23,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Form */}
-        <form action={login} className="mt-8 space-y-5">
+        {state?.error && (
+          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 border border-red-200 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900">
+            {state.error}
+          </div>
+        )}
+
+        <form action={formAction} className="mt-8 space-y-5">
           <div className="space-y-4">
             <div>
               <label 
@@ -59,13 +68,13 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white shadow-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/50"
+            disabled={isPending}
+            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white shadow-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
           >
-            Sign In
+            {isPending ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
-        {/* Footer Link to Sign Up */}
         <p className="text-center text-sm text-slate-500 dark:text-slate-400">
           Don't have an account?{" "}
           <Link 

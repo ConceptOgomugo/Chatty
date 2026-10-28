@@ -56,46 +56,46 @@ export default async function RootLayout({
       className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <header>
-        <nav className="flex h-16 items-center justify-between border-b border-slate-800 bg-gray-900 px-6 text-white shadow-md">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
-              <Image
-                src="/logo.png"
-                alt="Chatty Logo"
-                width={34}
-                height={34}
-                className="invert brightness-200 transition-transform group-hover:scale-105"
-              />
-              <span className="text-lg font-bold tracking-wide">Chatty</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-6 text-sm font-medium">
-            <Link
-              href="/"
-              className="text-slate-300 hover:text-white transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/settings"
-              className="flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-              aria-label="Settings"
-            >
-              <Image
-                src="/svg/settings.png"
-                alt="Settings"
-                width={20}
-                height={20}
-                className="opacity-80 hover:opacity-100 invert"
-              />
-            </Link>
-          </div>
-        </nav>
-      </header>
-
       <body className="flex h-full flex-col overflow-hidden">
+        <header>
+          <nav className="flex h-16 items-center justify-between border-b border-slate-800 bg-gray-900 px-6 text-white shadow-md">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-2 group">
+                <Image
+                  src="/logo.png"
+                  alt="Chatty Logo"
+                  width={34}
+                  height={34}
+                  className="invert brightness-200 transition-transform group-hover:scale-105"
+                />
+                <span className="text-lg font-bold tracking-wide">Chatty</span>
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-6 text-sm font-medium">
+              <Link
+                href="/"
+                className="text-slate-300 hover:text-white transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/settings"
+                className="flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                aria-label="Settings"
+              >
+                <Image
+                  src="/svg/settings.png"
+                  alt="Settings"
+                  width={20}
+                  height={20}
+                  className="opacity-80 hover:opacity-100 invert"
+                />
+              </Link>
+            </div>
+          </nav>
+        </header>
+
         <div className="flex min-h-0 flex-1">
           <Sidebar recentChats={recentChats} />
 
