@@ -4,6 +4,9 @@ type MessageProps = {
   timestamp: string;
 };
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 export default function Message({
   role,
   content,
@@ -30,9 +33,15 @@ export default function Message({
             : "bg-slate-100 text-slate-800"
         }`}
       >
-        <p className="mb-2 whitespace-pre-wrap break-words text-sm">
-          {content}
-        </p>
+        {isUser ? (
+          <p className="mb-2 whitespace-pre-wrap break-words text-sm">
+            {content}
+          </p>
+        ) : (
+          <div className="mb-2 text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          </div>
+        )}
 
         <time className="block text-xs opacity-70">{timestamp}</time>
       </div>
