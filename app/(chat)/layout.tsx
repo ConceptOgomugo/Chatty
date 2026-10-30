@@ -1,4 +1,8 @@
 export const instant = false;
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
@@ -58,7 +62,7 @@ export default async function RootLayout({
     >
       <body className="flex h-full flex-col overflow-hidden">
         <header>
-          <nav className="flex h-16 items-center justify-between border-b border-slate-800 bg-gray-900 px-6 text-white shadow-md">
+          <nav className="flex h-16 items-center justify-between border-b border-slate-800 bg-gray-900 px-4 md:px-6 text-white shadow-md">
             <div className="flex items-center gap-3">
               <Link href="/" className="flex items-center gap-2 group">
                 <Image
@@ -72,7 +76,7 @@ export default async function RootLayout({
               </Link>
             </div>
 
-            <div className="flex items-center gap-6 text-sm font-medium">
+            <div className="flex items-center gap-4 md:gap-6 text-sm font-medium">
               <Link
                 href="/"
                 className="text-slate-300 hover:text-white transition-colors"
@@ -96,10 +100,11 @@ export default async function RootLayout({
           </nav>
         </header>
 
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 relative overflow-hidden">
           <Sidebar recentChats={recentChats} />
-
-          {children}
+          <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            {children}
+          </div>
         </div>
       </body>
     </html>
